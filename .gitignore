@@ -63,3 +63,4 @@ DIPasDoc_Console.exe
 __history/
 __recovery/
 *.~*
+/source/bin

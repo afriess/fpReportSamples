@@ -17,7 +17,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="SimpleReportLCL"/>
+            <Filename Value="..\bin\SimpleReportLCL"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -80,7 +80,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="SimpleReportLCL"/>
+      <Filename Value="..\bin\SimpleReportLCL"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
