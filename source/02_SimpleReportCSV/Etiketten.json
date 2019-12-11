@@ -1,0 +1,174 @@
+{
+  "Report" : {
+    "Name" : "",
+    "Title" : "",
+    "Author" : "",
+    "TwoPass" : false,
+    "DateCreated" : "20191130T150558",
+    "Images" : {},
+    "Pages" : {
+      "0" : {
+        "Name" : "Page1",
+        "Layout" : {
+          "Top" : 1.0000000000000000E+001,
+          "Left" : 5.0000000000000000E+000,
+          "Width" : 2.0000000000000000E+002,
+          "Height" : 2.8200000000000000E+002
+        },
+        "Frame" : {
+          "Color" : 2147483648,
+          "Pen" : "psSolid",
+          "Width" : 1,
+          "Shape" : "fsNone",
+          "Lines" : 0,
+          "BackgroundColor" : 2147483648
+        },
+        "Visible" : true,
+        "VisibleExpr" : "",
+        "StretchMode" : "smDontStretch",
+        "ColumnCount" : 3.0000000000000000E+000,
+        "ColumnGap" : 0.0000000000000000E+000,
+        "ColumnLayout" : "clHorizontal",
+        "Orientation" : "poPortrait",
+        "PageSize.PaperName" : "A4",
+        "PageSize.Width" : 2.1000000000000000E+002,
+        "PageSize.Height" : 2.9700000000000000E+002,
+        "FontName" : "LiberationSans",
+        "FontSize" : 10,
+        "FontColor" : 0,
+        "Data" : "Data1",
+        "Margins" : {
+          "Top" : 1.0000000000000000E+001,
+          "Left" : 5.0000000000000000E+000,
+          "Bottom" : 5.0000000000000000E+000,
+          "Right" : 5.0000000000000000E+000
+        },
+        "Children" : {
+          "0" : {
+            "DataBand" : {
+              "Name" : "DataBand1",
+              "Layout" : {
+                "Top" : 5.2916665077209473E+000,
+                "Left" : 0.0000000000000000E+000,
+                "Width" : 6.6666664123535156E+001,
+                "Height" : 3.0000000000000000E+001
+              },
+              "Frame" : {
+                "Color" : 2147483648,
+                "Pen" : "psSolid",
+                "Width" : 1,
+                "Shape" : "fsNone",
+                "Lines" : 0,
+                "BackgroundColor" : 2147483648
+              },
+              "Visible" : true,
+              "VisibleExpr" : "",
+              "StretchMode" : "smDontStretch",
+              "UseParentFont" : true,
+              "BandPosition" : "bpNormal",
+              "Children" : {
+                "0" : {
+                  "Memo" : {
+                    "Name" : "Memo1",
+                    "Layout" : {
+                      "Top" : 4.7625002861022949E+000,
+                      "Left" : 5.2916669845581055E-001,
+                      "Width" : 6.4558334350585938E+001,
+                      "Height" : 2.5135416030883789E+001
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : "",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "[Data1.Anrede]\n[Data1.Name]\n[Data1.Firma2]\n[Data1.Strasse]\n<b>[Data1.Plz] [Data1.Ort]</b>\n[Data1.Land]",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : false,
+                    "FontName" : "LiberationSans",
+                    "FontSize" : 8,
+                    "FontColor" : 0,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "moAllowHTML",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                },
+                "1" : {
+                  "Memo" : {
+                    "Name" : "Memo2",
+                    "Layout" : {
+                      "Top" : 1.3229166269302368E+000,
+                      "Left" : 5.2916669845581055E-001,
+                      "Width" : 6.3235416412353516E+001,
+                      "Height" : 4.2333331108093262E+000
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : " IF (Data1.Name = '',FALSE, TRUE)",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "------   Absenderzeile    -------",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : false,
+                    "FontName" : "LiberationSansNarrow",
+                    "FontSize" : 7,
+                    "FontColor" : 0,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "moAllowHTML",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                }
+              },
+              "Data" : "Data1",
+              "VisibleOnPage" : "vpAll",
+              "KeepTogetherWithChildren" : true
+            }
+          }
+        }
+      }
+    },
+    "Variables" : {}
+  },
+  "DesignData" : {
+    "datasets" : [
+      {
+        "name" : "Data1",
+        "type" : "CSV",
+        "config" : {
+          "filename" : "Etiketten.csv",
+          "firstLineHasFieldNames" : true,
+          "delimiter" : ",",
+          "quoteChar" : "\""
+        },
+        "master" : ""
+      }
+    ]
+  }
+}

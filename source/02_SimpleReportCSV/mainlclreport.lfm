@@ -9,7 +9,6 @@ object FrmSimpleReportLCL: TFrmSimpleReportLCL
   OnActivate = FormActivate
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '2.0.5.0'
   object panelMain: TPanel
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
@@ -97,14 +96,41 @@ object FrmSimpleReportLCL: TFrmSimpleReportLCL
       AnchorSideRight.Control = UpDown1
       AnchorSideBottom.Control = UpDown1
       AnchorSideBottom.Side = asrCenter
-      Left = 882
-      Height = 17
-      Top = 12
-      Width = 36
+      Left = 884
+      Height = 15
+      Top = 13
+      Width = 34
       Anchors = [akRight, akBottom]
       BorderSpacing.Around = 5
       Caption = 'Page ?'
       ParentColor = False
     end
+  end
+  object FPReportDatasetData: TFPReportDatasetData
+    DataSet = CSVDataset
+    Left = 170
+    Top = 78
+  end
+  object CSVDataset: TCSVDataset
+    FieldDefs = <>
+    CSVOptions.FirstLineAsFieldNames = False
+    CSVOptions.DefaultFieldLength = 255
+    CSVOptions.Delimiter = ','
+    CSVOptions.QuoteChar = '"'
+    CSVOptions.LineEnding = #13#10
+    CSVOptions.IgnoreOuterWhitespace = False
+    CSVOptions.QuoteOuterWhitespace = True
+    Left = 344
+    Top = 80
+  end
+  object DataSource: TDataSource
+    DataSet = CSVDataset
+    Left = 264
+    Top = 80
+  end
+  object FPJSONReport: TFPJSONReport
+    ReportData = <>
+    Left = 88
+    Top = 78
   end
 end
