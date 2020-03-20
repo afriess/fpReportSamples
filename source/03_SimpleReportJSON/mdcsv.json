@@ -1,0 +1,315 @@
+{
+  "Report" : {
+    "Name" : "",
+    "Title" : "",
+    "Author" : "",
+    "TwoPass" : false,
+    "DateCreated" : "20191216T185718",
+    "Images" : {},
+    "Pages" : {
+      "0" : {
+        "Name" : "Page1",
+        "Layout" : {
+          "Top" : 2.0000000000000000E+001,
+          "Left" : 3.0000000000000000E+001,
+          "Width" : 1.5000000000000000E+002,
+          "Height" : 2.5700000000000000E+002
+        },
+        "Frame" : {
+          "Color" : 2147483648,
+          "Pen" : "psSolid",
+          "Width" : 1,
+          "Shape" : "fsNone",
+          "Lines" : 0,
+          "BackgroundColor" : 2147483648
+        },
+        "Visible" : true,
+        "VisibleExpr" : "",
+        "StretchMode" : "smDontStretch",
+        "ColumnCount" : 1.0000000000000000E+000,
+        "ColumnGap" : 0.0000000000000000E+000,
+        "ColumnLayout" : "clVertical",
+        "Orientation" : "poPortrait",
+        "PageSize.PaperName" : "A4",
+        "PageSize.Width" : 2.1000000000000000E+002,
+        "PageSize.Height" : 2.9700000000000000E+002,
+        "FontName" : "LiberationSans",
+        "FontSize" : 10,
+        "FontColor" : 0,
+        "Data" : "m",
+        "Margins" : {
+          "Top" : 2.0000000000000000E+001,
+          "Left" : 3.0000000000000000E+001,
+          "Bottom" : 2.0000000000000000E+001,
+          "Right" : 3.0000000000000000E+001
+        },
+        "Children" : {
+          "0" : {
+            "DataBand" : {
+              "Name" : "DataBand2",
+              "Layout" : {
+                "Top" : 3.7835418701171875E+001,
+                "Left" : 0.0000000000000000E+000,
+                "Width" : 1.5000000000000000E+002,
+                "Height" : 8.2020826339721680E+000
+              },
+              "Frame" : {
+                "Color" : 2147483648,
+                "Pen" : "psSolid",
+                "Width" : 1,
+                "Shape" : "fsNone",
+                "Lines" : 0,
+                "BackgroundColor" : 2147483648
+              },
+              "Visible" : true,
+              "VisibleExpr" : "",
+              "StretchMode" : "smDontStretch",
+              "UseParentFont" : true,
+              "BandPosition" : "bpNormal",
+              "Children" : {
+                "0" : {
+                  "Memo" : {
+                    "Name" : "Memo1",
+                    "Layout" : {
+                      "Top" : 1.5875000953674316E+000,
+                      "Left" : 3.9687500000000000E+000,
+                      "Width" : 2.1166666030883789E+001,
+                      "Height" : 5.0270833969116211E+000
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : "",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "[d.Position]",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : true,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                },
+                "1" : {
+                  "Memo" : {
+                    "Name" : "Memo2",
+                    "Layout" : {
+                      "Top" : 1.5875000953674316E+000,
+                      "Left" : 3.1220832824707031E+001,
+                      "Width" : 8.0433334350585938E+001,
+                      "Height" : 4.7624998092651367E+000
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : "",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "[d.Bezeichnung]",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : true,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                },
+                "2" : {
+                  "Memo" : {
+                    "Name" : "Memo3",
+                    "Layout" : {
+                      "Top" : 1.5875000953674316E+000,
+                      "Left" : 1.2170833587646484E+002,
+                      "Width" : 1.5610416412353516E+001,
+                      "Height" : 4.7624998092651367E+000
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : "",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "[d.Preis]",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : true,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                }
+              },
+              "Data" : "d",
+              "VisibleOnPage" : "vpAll",
+              "KeepTogetherWithChildren" : true
+            }
+          },
+          "1" : {
+            "ReportTitleBand" : {
+              "Name" : "TitleBand1",
+              "Layout" : {
+                "Top" : 5.0270833969116211E+000,
+                "Left" : 0.0000000000000000E+000,
+                "Width" : 1.5000000000000000E+002,
+                "Height" : 2.4606250762939453E+001
+              },
+              "Frame" : {
+                "Color" : 2147483648,
+                "Pen" : "psSolid",
+                "Width" : 1,
+                "Shape" : "fsNone",
+                "Lines" : 0,
+                "BackgroundColor" : 2147483648
+              },
+              "Visible" : true,
+              "VisibleExpr" : "",
+              "StretchMode" : "smDontStretch",
+              "UseParentFont" : true,
+              "BandPosition" : "bpNormal",
+              "Children" : {
+                "0" : {
+                  "Memo" : {
+                    "Name" : "Memo4",
+                    "Layout" : {
+                      "Top" : 6.0854167938232422E+000,
+                      "Left" : 1.0847916603088379E+001,
+                      "Width" : 1.7727083206176758E+001,
+                      "Height" : 5.0270833969116211E+000
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : "",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "[m.Name]",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : true,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                },
+                "1" : {
+                  "Memo" : {
+                    "Name" : "Memo5",
+                    "Layout" : {
+                      "Top" : 5.8208332061767578E+000,
+                      "Left" : 4.1539585113525391E+001,
+                      "Width" : 8.1491668701171875E+001,
+                      "Height" : 4.7624998092651367E+000
+                    },
+                    "Frame" : {
+                      "Color" : 2147483648,
+                      "Pen" : "psSolid",
+                      "Width" : 1,
+                      "Shape" : "fsNone",
+                      "Lines" : 0,
+                      "BackgroundColor" : 2147483648
+                    },
+                    "Visible" : true,
+                    "VisibleExpr" : "",
+                    "StretchMode" : "smDontStretch",
+                    "Text" : "[m.Bezeichnung]",
+                    "CullThreshold" : 75,
+                    "UseParentFont" : true,
+                    "LineSpacing" : 1.0000000000000000E+000,
+                    "LinkColor" : 255,
+                    "Options" : "",
+                    "TextAlignment" : {
+                      "Horizontal" : "taLeftJustified",
+                      "Vertical" : "tlTop",
+                      "LeftMargin" : 1.0000000000000000E+000,
+                      "RightMargin" : 1.0000000000000000E+000,
+                      "TopMargin" : 0.0000000000000000E+000,
+                      "BottomMargin" : 0.0000000000000000E+000
+                    }
+                  }
+                }
+              },
+              "VisibleOnPage" : "vpAll",
+              "KeepTogetherWithChildren" : true
+            }
+          }
+        }
+      }
+    },
+    "Variables" : {}
+  },
+  "DesignData" : {
+    "datasets" : [
+      {
+        "name" : "m",
+        "type" : "CSV",
+        "config" : {
+          "filename" : "/home/klaus/Schreibtisch/m.csv",
+          "firstLineHasFieldNames" : true,
+          "delimiter" : ",",
+          "quoteChar" : "\""
+        },
+        "master" : ""
+      },
+      {
+        "name" : "d",
+        "type" : "CSV",
+        "config" : {
+          "filename" : "/home/klaus/Schreibtisch/d.csv",
+          "firstLineHasFieldNames" : true,
+          "delimiter" : ",",
+          "quoteChar" : "\""
+        },
+        "master" : ""
+      }
+    ]
+  }
+}

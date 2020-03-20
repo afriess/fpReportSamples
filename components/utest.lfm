@@ -1,0 +1,77 @@
+object Form1: TForm1
+  Left = 2170
+  Height = 352
+  Top = 250
+  Width = 934
+  Caption = 'Form1'
+  ClientHeight = 352
+  ClientWidth = 934
+  object Button1: TButton
+    Left = 46
+    Height = 25
+    Top = 150
+    Width = 75
+    Caption = 'Button1'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object DBGrid1: TDBGrid
+    Left = 376
+    Height = 218
+    Top = 16
+    Width = 536
+    Color = clWindow
+    Columns = <>
+    DataSource = DataSource1
+    TabOrder = 1
+  end
+  object Memo1: TMemo
+    Left = 32
+    Height = 90
+    Top = 232
+    Width = 656
+    Lines.Strings = (
+      'Memo1'
+    )
+    TabOrder = 2
+  end
+  object CSVDataset1: TCSVDataset
+    FieldDefs = <>
+    CSVOptions.FirstLineAsFieldNames = False
+    CSVOptions.DefaultFieldLength = 255
+    CSVOptions.Delimiter = ','
+    CSVOptions.QuoteChar = '"'
+    CSVOptions.LineEnding = #13#10
+    CSVOptions.IgnoreOuterWhitespace = False
+    CSVOptions.QuoteOuterWhitespace = True
+    Left = 64
+    Top = 40
+  end
+  object JSONDataSet1: TJSONDataSet
+    FieldDefs = <    
+      item
+        Name = 'Field1'
+        DataType = ftInteger
+      end    
+      item
+        Name = 'Field2'
+        DataType = ftString
+      end    
+      item
+        Name = 'Field3'
+        DataType = ftString
+      end>
+    Left = 152
+    Top = 40
+  end
+  object DataSource1: TDataSource
+    DataSet = JSONDataSet1
+    Left = 232
+    Top = 48
+  end
+  object FPReport1: TFPReport
+    ReportData = <>
+    Left = 214
+    Top = 149
+  end
+end

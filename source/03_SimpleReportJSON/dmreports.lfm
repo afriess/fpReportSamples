@@ -1,0 +1,50 @@
+object Reports: TReports
+  OnCreate = DataModuleCreate
+  OnDestroy = DataModuleDestroy
+  OldCreateOrder = False
+  Height = 336
+  HorizontalOffset = 364
+  VerticalOffset = 250
+  Width = 644
+  object FPJSONReport: TFPJSONReport
+    ReportData = <>
+    Left = 44
+    Top = 84
+  end
+  object FPReportDatasetData: TFPReportDatasetData
+    DataSet = CSVDataset
+    Left = 172
+    Top = 84
+  end
+  object DataSource: TDataSource
+    DataSet = CSVDataset
+    Left = 292
+    Top = 84
+  end
+  object CSVDataset: TCSVDataset
+    FieldDefs = <>
+    CSVOptions.FirstLineAsFieldNames = False
+    CSVOptions.DefaultFieldLength = 255
+    CSVOptions.Delimiter = ','
+    CSVOptions.QuoteChar = '"'
+    CSVOptions.LineEnding = #13#10
+    CSVOptions.IgnoreOuterWhitespace = False
+    CSVOptions.QuoteOuterWhitespace = True
+    Left = 388
+    Top = 84
+  end
+  object OpenDialog: TOpenDialog
+    Title = 'Report-Datei öffnen'
+    DefaultExt = '.json'
+    Filter = 'JSON-Bericht|*.json|Etiketten|*.rla|Listen|*.rli'
+    Left = 492
+    Top = 84
+  end
+  object FPReportDesigner1: TFPReportDesigner
+    Report = FPJSONReport
+    ModalWindow = False
+    AutoAssignReportData = False
+    Left = 84
+    Top = 161
+  end
+end

@@ -1,0 +1,11 @@
+{
+  "Invoice" : [
+    {
+      "Nummer" : "250",
+      "Name" : "Peter Testmann",
+      "Ort" : "70000 Teststadt",
+      "Text1" : "Gemäß unseren ausgeführten Arbeiten berechnen wir wie folgt:",
+      "Fusstext" : "Dies ist der Fußtext"
+    }
+    ]}
+

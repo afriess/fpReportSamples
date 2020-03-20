@@ -1,0 +1,28 @@
+{
+  "Invoice" : [
+    {
+      "Nummer" : "RE-250",
+      "Name" : "Peter Testmann",
+      "Ort" : "70000 Teststadt",
+      "Text1" : "Gemäß unseren ausgeführten Arbeiten berechnen wir wie folgt:",
+      "DataItems" : [
+        {
+          "OrderId" : 1,
+          "ItemHtml" : "This is item 1",
+          "Preis" : "123,34"
+        },
+        {
+          "OrderId" : 2,
+          "ItemHtml" : "This is item 2",
+          "Preis" : "43,99"
+        },
+        {
+          "OrderId" : 3,
+          "ItemHtml" : "This is item 3",
+          "Preis" : "13,55"
+        }
+      ],
+      "Fusstext" : "Dies ist der Fußtext"
+    }
+  ]
+}  
