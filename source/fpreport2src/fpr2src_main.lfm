@@ -7,15 +7,15 @@ object Frmfpr2src: TFrmfpr2src
   ClientHeight = 407
   ClientWidth = 654
   Menu = MainMenu1
-  object Button1: TButton
+  object BuStreamer: TButton
     AnchorSideLeft.Control = EdtDest
     AnchorSideTop.Control = EdtDest
     AnchorSideTop.Side = asrBottom
     Left = 10
     Height = 25
     Top = 76
-    Width = 75
-    Action = ActConvert
+    Width = 131
+    Action = ActConvertStreamer
     BorderSpacing.Top = 15
     TabOrder = 0
   end
@@ -71,7 +71,7 @@ object Frmfpr2src: TFrmfpr2src
   end
   object Memo1: TMemo
     AnchorSideLeft.Control = Owner
-    AnchorSideTop.Control = Button1
+    AnchorSideTop.Control = BuStreamer
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
@@ -87,19 +87,39 @@ object Frmfpr2src: TFrmfpr2src
     )
     TabOrder = 4
   end
+  object BuExporter: TButton
+    AnchorSideLeft.Control = BuStreamer
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = BuStreamer
+    AnchorSideTop.Side = asrCenter
+    Left = 156
+    Height = 25
+    Top = 76
+    Width = 131
+    Action = ActConvertExporter
+    BorderSpacing.Left = 15
+    TabOrder = 5
+  end
   object ActionList1: TActionList
-    Left = 203
-    Top = 59
-    object ActConvert: TAction
-      Caption = 'Convert'
-      OnExecute = ActConvertExecute
+    Left = 392
+    Top = 152
+    object ActConvertStreamer: TAction
+      Caption = 'Convert Streamer'
+      OnExecute = ActConvertStreamerExecute
+    end
+    object ActConvertExporter: TAction
+      Caption = 'Convert Exporter'
+      OnExecute = ActConvertExporterExecute
     end
   end
   object MainMenu1: TMainMenu
     Left = 471
-    Top = 92
+    Top = 152
     object MenuItem1: TMenuItem
-      Action = ActConvert
+      Action = ActConvertStreamer
+    end
+    object MenuItem2: TMenuItem
+      Action = ActConvertExporter
     end
   end
 end

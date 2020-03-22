@@ -64,7 +64,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="fpr2src.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -73,12 +73,17 @@
         <Filename Value="fpr2src_main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Frmfpr2src"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
         <Filename Value="fpr2srcstreamer.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="fpr2srcreport.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
