@@ -119,7 +119,8 @@
       </Debugging>
     </Linking>
     <Other>
-      <CustomOptions Value="-dDebugStreamer"/>
+      <CustomOptions Value="-dDebugLvlAll
+-dxxDebugLvlCreate"/>
     </Other>
   </CompilerOptions>
   <Debugging>

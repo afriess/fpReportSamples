@@ -2,6 +2,19 @@ unit fpr2srcstreamer;
 
 {$mode objfpc}{$H+}
 
+{$ifdef DebugLvlAll}
+  {$Define DebugLvlDbg}
+  {$Define DebugLvlCreate}
+{$endif}
+{$ifdef DebugLvlCreate}
+  {$Define DebugLvlInfo}
+{$endif}
+{$ifdef DebugLvlInfo}
+  {$Define DebugLvlWarning}
+{$endif}
+
+
+
 interface
 
 uses
@@ -14,14 +27,20 @@ type
   TStackElement = class(TComponent)
   private
     FCName: string;
-    FChildList: TStringList;
+    FParent: TComponent;
+    FParentName: string;
+    FRptElement: TFPReportElement;
+    procedure SetRptElement(AValue: TFPReportElement);
   public
     Class Function ElementType : String; virtual;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Add(AName:string; AElement: TStackElement);
+    procedure Add(AParentName:string; AParent: TStackElement);
   published
     property CName : string read FCName write FCName;
+    property Parent: TComponent read FParent;
+    property ParentName: string read FParentName;
+    property RptElement : TFPReportElement read FRptElement write SetRptElement;
   end;
 
   { TFPReportSRCStreamer }
@@ -32,14 +51,16 @@ type
     FExtFileName: string;
     FExtUnitName: string;
     FSrc: TStringList;
+    FJSON: TStackElement;
     FCurrentElement: TStackElement;
     FStack: TFPList;
     FIdent: integer;
     function GetSourceCode: string;
     procedure SetCurrentElement(AValue: TStackElement);
     procedure InitialiseCurrentElement;
+    procedure SetJSON(AValue: TStackElement);
     function StackToName(StartName: string): string;
-    function FindMappings(AElementName: string): boolean;
+    function FindMappings(AElementName: string): TFPReportElement;
   public
     function ChildCount: integer; override;
     function CurrentElementName: string; override;
@@ -83,6 +104,7 @@ type
     property    CurrentElement: TStackElement read FCurrentElement write SetCurrentElement;
 
   published
+    property JSON: TStackElement read FJSON write SetJSON;
     property  AutoSave: boolean read FExtAutoSave write FExtAutoSave default True;
     property  FileName: string read FExtFileName write FExtFileName;
     property  UnitName: string read FExtUnitName write FExtUnitName;
@@ -96,6 +118,15 @@ uses
 
 { TStackElement }
 
+procedure TStackElement.SetRptElement(AValue: TFPReportElement);
+begin
+  if FRptElement=AValue then Exit;
+  // Clear old Value
+  if FRptElement <> nil then
+    RptElement.Free;
+  FRptElement:=AValue;
+end;
+
 class function TStackElement.ElementType: String;
 begin
   Result:= 'Stack';
@@ -104,23 +135,20 @@ end;
 constructor TStackElement.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FChildList:= nil;
 end;
 
 destructor TStackElement.Destroy;
 begin
-  if Assigned(FChildList) then
-    FChildList.Free;
+  if FRptElement <> nil then
+    RptElement.Free;
   inherited Destroy;
 end;
 
-procedure TStackElement.Add(AName: string; AElement: TStackElement);
+procedure TStackElement.Add(AParentName: string; AParent: TStackElement);
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ ' AName='+AName+' AElementType='+AElement.ElementType); {$endif}
-  //if FChildList = nil then
-  //  FChildList:= TStringList.Create;
-  //FChildList.AddObject(AName,AElement);
-  {$ifdef DebugStreamer}DebugLn('  AName='+AName+' Current='+AElement.CName);{$endif}
+  {$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ ' AParentName='+AParentName); {$endif}
+  FParent:= AParent;
+  FParentName:= AParentName;
 end;
 
 { TFPReportSRCStreamer }
@@ -141,10 +169,18 @@ end;
 
 procedure TFPReportSRCStreamer.InitialiseCurrentElement;
 begin
-  {$ifdef DebugStreamer}Debugln({$I %CURRENTROUTINE%}); {$endif}
-  if FCurrentElement = nil then begin
-    FCurrentElement:= TStackElement.Create(nil);
-  end;
+  {$ifdef DebugLvlDbg}Debugln({$I %CURRENTROUTINE%}); {$endif}
+  FCurrentElement:= FJSON;
+end;
+
+procedure TFPReportSRCStreamer.SetJSON(AValue: TStackElement);
+begin
+  if Fjson = AValue then
+    Exit;
+  if Assigned(Fjson) then
+    FreeAndNil(FJson);
+  Fjson := AValue;
+  InitialiseCurrentElement;
 end;
 
 function TFPReportSRCStreamer.StackToName(StartName: string): string;
@@ -162,17 +198,19 @@ begin
   end;
 end;
 
-function TFPReportSRCStreamer.FindMappings(AElementName: string): boolean;
+function TFPReportSRCStreamer.FindMappings(AElementName: string): TFPReportElement;
 var
   i: integer;
   map : TFPReportClassMapping;
+  MapName: string;
 begin
-  Result := false;
+  Result := nil;
   for i := 0 to gElementFactory.MappingCount - 1 do
   begin
-    if SameText(gElementFactory.Mappings[I].MappingName, AElementName) then
+    MapName:= gElementFactory.Mappings[I].MappingName;
+    if SameText(MapName, AElementName) then
     begin
-      Result := true;
+       Result:= gElementFactory.CreateInstance(AElementName,nil);
       Break; //==>
     end;
   end;
@@ -193,13 +231,13 @@ end;
 
 function TFPReportSRCStreamer.FindChild(const AName: String): TObject;
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
+  {$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
   Result := nil;
 end;
 
 function TFPReportSRCStreamer.GetChild(AIndex: Integer): TObject;
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ ' AIndex='+IntToStr(AIndex)); {$endif}
+  {$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ ' AIndex='+IntToStr(AIndex)); {$endif}
   Result := nil;
 end;
 
@@ -207,32 +245,37 @@ function TFPReportSRCStreamer.NewElement(const AName: String): TObject;
 var
   obj : TStackElement;
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
+  {$ifdef DebugLvlCreate}DebugLn({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
   obj:= TStackElement.Create(nil);
   obj.CName:=AName;
-  FCurrentElement.add(AName,FCurrentElement);
+  obj.add(AName,FCurrentElement);
   FCurrentElement:=obj;
-  Result := nil;
+  {$ifdef DebugLvlCreate}
+  if FindMappings(FCurrentElement.CName) <> nil then DebugLn('    Mapping Found')
+  else Debugln('    Mapping NOT found'); {$endif}
+  Result := FCurrentElement;
 end;
 
 function TFPReportSRCStreamer.PopElement: TObject;
 begin
-  {$ifdef DebugStreamer}Debugln({$I %CURRENTROUTINE%}); {$endif}
+  {$ifdef DebugLvlDbg}Debugln({$I %CURRENTROUTINE%}); {$endif}
   if (FStack = nil) or (FStack.Count = 0) then
     raise Exception.Create('Stack Empty');
-  Result := FCurrentElement;
+  if FCurrentElement <> nil then
+    FCurrentElement.Free;
   FCurrentElement := TStackElement(FStack[FStack.Count - 1]);
   FStack.Delete(FStack.Count - 1);
   if (FStack.Count = 0) then
     FreeAndNil(FStack);
-  {$ifdef DebugStreamer}
-  if FCurrentElement <> nil then DebugLnExit('    CName='+FCurrentElement.CName+' AElementType='+FCurrentElement.ElementType )
+  {$ifdef DebugLvlDbg}
+  if FCurrentElement <> nil then DebugLnExit('    CName='+FCurrentElement.CName)
   else DebuglnExit('    Element=nil'); {$endif}
+  Result := FCurrentElement;
 end;
 
 function TFPReportSRCStreamer.PushCurrentElement: TObject;
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ ' Cname='+FCurrentElement.CName + ' Type='+FCurrentElement.ElementType); {$endif}
+  {$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ ' Cname='+FCurrentElement.CName + ' Type='+FCurrentElement.ElementType); {$endif}
   if not Assigned(FStack) then begin
     FStack := TFPList.Create;
   end;
@@ -242,14 +285,14 @@ end;
 
 function TFPReportSRCStreamer.PushElement(const AName: String): TObject;
 begin
-  {$ifdef DebugStreamer}DebugLnEnter({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
+  {$ifdef DebugLvlDbg}DebugLnEnter({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
   PushCurrentElement;
   Result := NewElement(AName);
 end;
 
 function TFPReportSRCStreamer.PushElement(AElement: TObject): TObject;
 begin
-  {$ifdef DebugStreamer}DebugLnEnter({$I %CURRENTROUTINE%}+ ' Object='+AElement.ClassName); {$endif}
+  {$ifdef DebugLvlDbg}DebugLnEnter({$I %CURRENTROUTINE%}+ ' Object='+AElement.ClassName); {$endif}
   PushCurrentElement;
   CurrentElement:=TStackElement(AElement);
   Result := CurrentElement;
@@ -257,50 +300,50 @@ end;
 
 procedure TFPReportSRCStreamer.WriteInteger(AName: String; AValue: Integer);
 begin
-{$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+IntToStr(AValue)); {$endif}
-{$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+{$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+IntToStr(AValue)); {$endif}
+{$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteInt64(AName: String; AValue: Int64);
 begin
-{$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+IntToStr(AValue)); {$endif}
-{$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+{$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+IntToStr(AValue)); {$endif}
+{$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteQWord(AName: String; AValue: QWord);
 begin
-{$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+IntToStr(AValue)); {$endif}
-{$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+{$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+IntToStr(AValue)); {$endif}
+{$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteFloat(AName: String; AValue: Extended);
 begin
-{$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+FloatToStr(AValue)); {$endif}
-{$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+{$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+FloatToStr(AValue)); {$endif}
+{$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteString(AName: String; AValue: String);
 begin
-{$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+AValue); {$endif}
-{$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+{$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+AValue); {$endif}
+{$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteBoolean(AName: String; AValue: Boolean);
 begin
-{$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+BoolToStr(AValue)); {$endif}
-{$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+{$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName+' AValue='+BoolToStr(AValue)); {$endif}
+{$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteDateTime(AName: String; AValue: TDateTime);
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName); {$endif}
-  {$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+  {$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName); {$endif}
+  {$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteStream(AName: String; AValue: TStream);
 begin
-  {$ifdef DebugStreamer}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName); {$endif}
-  {$ifdef DebugStreamer}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
+  {$ifdef DebugLvlDbg}DebugLn({$I %CURRENTROUTINE%}+ 'AName='+AName); {$endif}
+  {$ifdef DebugLvlDbg}DebugLn('  ' +StackToName('Report')+' Current='+FCurrentElement.CName);{$endif}
 end;
 
 procedure TFPReportSRCStreamer.WriteIntegerDiff(AName: String; AValue,
@@ -408,6 +451,7 @@ begin
   FExtAutoSave:= true;
   //
   FCurrentElement:=nil;
+  FJSON := TStackElement.Create(nil);
   InitialiseCurrentElement;
 end;
 
@@ -417,17 +461,48 @@ var
 begin
   if Assigned(FSrc) then
     FSrc.free;
-  if FStack <> nil then begin
-    for i := FStack.Count-1 downto 0 do begin
-      if FStack[i] <> nil then begin
-        TObject(FStack[i]).Free;
-        FStack[i]:= nil;
-      end;
-    end;
+  //if FStack <> nil then begin
+  //  for i := FStack.Count-1 downto 0 do begin
+  //    if FStack[i] <> nil then begin
+  //      TObject(FStack[i]).Free;
+  //      FStack[i]:= nil;
+  //    end;
+  //  end;
     FreeAndNil(FStack);
-  end;
+  //end;
+  FreeAndNil(FJSON);
   inherited Destroy;
 end;
+
+Procedure RegisterStandardReportClasses;
+
+begin
+  TFPReportTitleBand.RegisterElement;
+  TFPReportSummaryBand.RegisterElement;
+  TFPReportGroupHeaderBand.RegisterElement;
+  TFPReportGroupFooterBand.RegisterElement;
+  TFPReportDataBand.RegisterElement;
+  TFPReportChildBand.RegisterElement;
+  TFPReportPageHeaderBand.RegisterElement;
+  TFPReportPageFooterBand.RegisterElement;
+  TFPReportDataHeaderBand.RegisterElement;
+  TFPReportDataFooterBand.RegisterElement;
+  TFPReportColumnHeaderBand.RegisterElement;
+  TFPReportColumnFooterBand.RegisterElement;
+  //TFPReportMemo.RegisterElement.FStandard:=True;
+  //TFPReportImage.RegisterElement.FStandard:=True;
+  //TFPReportCheckbox.RegisterElement.FStandard:=True;
+  //TFPReportShape.RegisterElement.FStandard:=True;
+  //TFPReportPage.RegisterElement.FStandard:=True;
+  TFPReportMemo.RegisterElement;
+  TFPReportImage.RegisterElement;
+  TFPReportCheckbox.RegisterElement;
+  TFPReportShape.RegisterElement;
+  TFPReportPage.RegisterElement;
+end;
+
+initialization
+  RegisterStandardReportClasses;
 
 end.
 
