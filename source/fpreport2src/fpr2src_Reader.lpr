@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, fpr2src_main, fpr2srcstreamer, fpr2srcreport
+  Forms, fpr2src_reader_main
   { you can add units after this };
 
 {$R *.res}
