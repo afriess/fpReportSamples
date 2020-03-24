@@ -1,4 +1,4 @@
-program fpr2src;
+program fpr2src_Reader;
 
 {$mode objfpc}{$H+}
 

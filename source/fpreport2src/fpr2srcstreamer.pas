@@ -22,6 +22,44 @@ uses
 
 type
 
+  TFPReportReport = class(TFPReportElement)
+  end;
+
+  TFPReportChapter = class(TFPReportElementWithChildren)
+  end;
+
+
+  { TReportReport }
+
+  TReportReport = class(TFPReportReport)
+  public
+    Class Function ElementType: String; override;
+  end;
+
+  { TReportChapterImages }
+
+  TReportChapterImages = class(TFPReportChapter)
+  public
+    Class Function ElementType: String; override;
+  end;
+
+
+  { TReportChapterPages }
+
+  TReportChapterPages = class(TFPReportChapter)
+  public
+    Class Function ElementType: String; override;
+  end;
+
+
+  { TReportChapterVariables }
+
+  TReportChapterVariables = class(TFPReportChapter)
+  public
+    Class Function ElementType: String; override;
+  end;
+
+
   { TStackElement }
 
   TStackElement = class(TComponent)
@@ -51,16 +89,30 @@ type
     FExtFileName: string;
     FExtUnitName: string;
     FSrc: TStringList;
-    FJSON: TStackElement;
+    FVar: TStringList;
+    FStE: TStackElement;
     FCurrentElement: TStackElement;
     FStack: TFPList;
     FIdent: integer;
+    FChapterName, FChapterNr: string;
+    FNextIsChapterNr: boolean;
+    FElementName, FElementNr: string;
+    FNextIsElementNr: boolean;
     function GetSourceCode: string;
     procedure SetCurrentElement(AValue: TStackElement);
     procedure InitialiseCurrentElement;
-    procedure SetJSON(AValue: TStackElement);
+    procedure SetFStE(AValue: TStackElement);
     function StackToName(StartName: string): string;
+    function FindChapter(AElementName: string): TFPReportElement;
     function FindMappings(AElementName: string): TFPReportElement;
+    //
+    procedure WriteNewReport;
+    procedure WriteNewChapter;
+    procedure WriteNewElement;
+    procedure WriteNewValue;
+    //
+    procedure WriteHeader;
+    procedure WriteVar;
   public
     function ChildCount: integer; override;
     function CurrentElementName: string; override;
@@ -104,7 +156,7 @@ type
     property    CurrentElement: TStackElement read FCurrentElement write SetCurrentElement;
 
   published
-    property JSON: TStackElement read FJSON write SetJSON;
+    property STE: TStackElement read FStE write SetFStE;
     property  AutoSave: boolean read FExtAutoSave write FExtAutoSave default True;
     property  FileName: string read FExtFileName write FExtFileName;
     property  UnitName: string read FExtUnitName write FExtUnitName;
@@ -115,6 +167,34 @@ type
 implementation
 uses
   LazLogger;
+
+{ TReportReport }
+
+class function TReportReport.ElementType: String;
+begin
+  Result:='Report';
+end;
+
+{ TReportChapterVariables }
+
+class function TReportChapterVariables.ElementType: String;
+begin
+  Result:= 'Variables';
+end;
+
+{ TReportChapterImages }
+
+class function TReportChapterImages.ElementType: String;
+begin
+  Result:='Images';
+end;
+
+{ TReportChapterPages }
+
+class function TReportChapterPages.ElementType: String;
+begin
+  Result:='Pages';
+end;
 
 { TStackElement }
 
@@ -170,16 +250,16 @@ end;
 procedure TFPReportSRCStreamer.InitialiseCurrentElement;
 begin
   {$ifdef DebugLvlDbg}Debugln({$I %CURRENTROUTINE%}); {$endif}
-  FCurrentElement:= FJSON;
+  FCurrentElement:= FStE;
 end;
 
-procedure TFPReportSRCStreamer.SetJSON(AValue: TStackElement);
+procedure TFPReportSRCStreamer.SetFStE(AValue: TStackElement);
 begin
-  if Fjson = AValue then
+  if FStE = AValue then
     Exit;
-  if Assigned(Fjson) then
-    FreeAndNil(FJson);
-  Fjson := AValue;
+  if Assigned(FStE) then
+    FreeAndNil(FStE);
+  FStE := AValue;
   InitialiseCurrentElement;
 end;
 
@@ -191,11 +271,20 @@ begin
   Result := FCurrentElement.CName;
   for i := FStack.count-1 downTo 0 do begin
     act := TStackElement(FStack[i]).CName;
-    if SameStr(act,StartName) then
-      break
+    if SameStr(act,StartName) then begin
+      Result:= act;
+      break;
+    end
     else
       Result :=  act + '_' + Result;
   end;
+end;
+
+function TFPReportSRCStreamer.FindChapter(AElementName: string
+  ): TFPReportElement;
+begin
+  Result := nil;
+
 end;
 
 function TFPReportSRCStreamer.FindMappings(AElementName: string): TFPReportElement;
@@ -210,10 +299,96 @@ begin
     MapName:= gElementFactory.Mappings[I].MappingName;
     if SameText(MapName, AElementName) then
     begin
-       Result:= gElementFactory.CreateInstance(AElementName,nil);
+      Result:= gElementFactory.CreateInstance(AElementName,nil);
       Break; //==>
     end;
   end;
+end;
+
+procedure TFPReportSRCStreamer.WriteNewReport;
+begin
+  FChapterName:= '';
+  FElementName:= '';
+  FSrc.Add('procedure CreateReport(var FReport: TFPReport);');
+  //FSrc.Add('var');
+  //FSrc.Add('  p: TFPReportPage;');
+  //FSrc.Add('  TitleBand: TFPReportTitleBand;');
+  //FSrc.Add('  DataBand: TFPReportDataBand;');
+  //FSrc.Add('  Memo: TFPReportMemo;');
+  //FSrc.Add('  PageFooter: TFPReportPageFooterBand;');
+  //FSrc.Add('  ColumnBand: TFPReportColumnHeaderBand;');
+  //FSrc.Add('  DataFooterBand: TFPReportDataFooterBand;');
+  FSrc.Add('begin');
+  FSrc.Add('  //');
+end;
+
+procedure TFPReportSRCStreamer.WriteNewChapter;
+begin
+  FChapterName:= FCurrentElement.CName;
+  FNextIsChapterNr:= true;
+  FElementName:= '';
+  FSrc.Append('');
+  FSrc.Append('  // New Chapter ' + FChapterName);
+end;
+
+procedure TFPReportSRCStreamer.WriteNewElement;
+begin
+  FElementName:= FCurrentElement.CName;
+  FNextIsElementNr:= (FCurrentElement.FRptElement is TFPReportElementWithChildren);
+  FSrc.Append('');
+  FSrc.Append('  // New Element ' + FElementName);
+
+end;
+
+procedure TFPReportSRCStreamer.WriteNewValue;
+var
+  ele: TStackElement;
+begin
+  if FNextIsChapterNr then begin
+    FChapterNr:= FCurrentElement.CName;
+    FNextIsChapterNr:=false;
+    FSrc.Append(' // '+ StackToName(FChapterName)+FChapterNr);
+    ele := TStackElement(FCurrentElement.Parent);
+    if (ele.FRptElement is TReportChapterPages) then begin
+      FVar.Append('  '+StackToName(FChapterName)+FChapterNr+' : TFPReportPage;');
+      FSrc.Append('  '+StackToName(FChapterName)+FChapterNr+' := TFPReportPage.Create(FPReport);');
+    end;
+  end
+  else begin
+    if FNextIsElementNr then begin
+      FElementNr:= FCurrentElement.CName;
+      FNextIsElementNr:= false;
+      FSrc.Append(' // '+ StackToName(FElementName)+FElementNr);
+    end
+    else begin
+      // normal value
+      FSrc.Append('  // New Value ' + FCurrentElement.CName);
+    end;
+  end;
+end;
+
+procedure TFPReportSRCStreamer.WriteHeader;
+begin
+  FSrc.Add('unit '+ FExtUnitName);
+  FSrc.Add('// Created with fp2srcexporter (C) Andreas Friess 2020');
+  FSrc.Add('{$mode objfpc}{$H+}');
+  FSrc.Add('');
+  FSrc.Add('interface');
+  FSrc.Add('uses');
+  FSrc.Add('  Classes, SysUtils, fpReport;');
+  FSrc.Add('');
+  FSrc.Add('  procedure CreateReport(var FReport: TFPReport);');
+  FSrc.Add('');
+  FSrc.Add('implementation');
+  FSrc.Add('');
+  //FSrc.Add('uses');
+  //FSrc.Add('  ');
+  FSrc.Add('');
+end;
+
+procedure TFPReportSRCStreamer.WriteVar;
+begin
+
 end;
 
 function TFPReportSRCStreamer.ChildCount: integer;
@@ -244,15 +419,46 @@ end;
 function TFPReportSRCStreamer.NewElement(const AName: String): TObject;
 var
   obj : TStackElement;
+  MapObj: TFPReportElement;
 begin
   {$ifdef DebugLvlCreate}DebugLn({$I %CURRENTROUTINE%}+ ' AName='+AName); {$endif}
   obj:= TStackElement.Create(nil);
   obj.CName:=AName;
   obj.add(AName,FCurrentElement);
   FCurrentElement:=obj;
+  //
+  MapObj:= FindMappings(FCurrentElement.CName);
+  FCurrentElement.FRptElement:= MapObj;
   {$ifdef DebugLvlCreate}
-  if FindMappings(FCurrentElement.CName) <> nil then DebugLn('    Mapping Found')
-  else Debugln('    Mapping NOT found'); {$endif}
+  if MapObj <> nil then
+    DebugLn('    Mapping Found')
+  else
+    Debugln('    Mapping NOT found');
+  {$endif}
+  // Is a new Report ?!
+  if (MapObj is TFPReportReport) then begin
+    // Start a new Report
+    FSrc.Clear;
+    WriteNewReport;
+  end
+  else begin
+    // Is a new Chapter ?!
+    if MapObj is TFPReportChapter then begin
+      // Start a new chapter
+      WriteNewChapter;
+    end
+    else begin
+      // Is a new Report Element ?!
+      if MapObj is TFPReportElement then begin
+        // Start a new Element
+        WriteNewElement;
+      end
+      else begin
+        // Insert only a new assigment
+        WriteNewValue;
+      end;
+    end;
+  end;
   Result := FCurrentElement;
 end;
 
@@ -445,13 +651,14 @@ begin
   inherited Create(AOwner);
   //
   FIdent:=0;
-  FSrc:= nil;
+  FSrc:= TStringList.Create;
+  FVar:= TStringList.Create;
   FExtUnitName:= ApplicationName + '_test';
   FExtFileName:= FExtUnitName+'.pas';
   FExtAutoSave:= true;
   //
   FCurrentElement:=nil;
-  FJSON := TStackElement.Create(nil);
+  FStE := TStackElement.Create(nil);
   InitialiseCurrentElement;
 end;
 
@@ -459,24 +666,20 @@ destructor TFPReportSRCStreamer.Destroy;
 var
   i: Integer;
 begin
-  if Assigned(FSrc) then
-    FSrc.free;
-  //if FStack <> nil then begin
-  //  for i := FStack.Count-1 downto 0 do begin
-  //    if FStack[i] <> nil then begin
-  //      TObject(FStack[i]).Free;
-  //      FStack[i]:= nil;
-  //    end;
-  //  end;
-    FreeAndNil(FStack);
-  //end;
-  FreeAndNil(FJSON);
+  FVar.free;
+  FSrc.free;
+  FStack.Free;
+  FStE.Free;
   inherited Destroy;
 end;
 
 Procedure RegisterStandardReportClasses;
 
 begin
+  TReportReport.RegisterElement;
+  TReportChapterImages.RegisterElement;
+  TReportChapterPages.RegisterElement;
+  TReportChapterVariables.RegisterElement;
   TFPReportTitleBand.RegisterElement;
   TFPReportSummaryBand.RegisterElement;
   TFPReportGroupHeaderBand.RegisterElement;
