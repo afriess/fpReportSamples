@@ -66,7 +66,7 @@ begin
   try
     FSrcReport.ParentName:= 'Report';
     FSrcReport.ReaderName:= 'FReport';
-    FSrcReport.ReadElement(rs);
+    FSrcReport.ReaderElement(rs);
   finally
     FreeAndNil(rs);
   end;

@@ -25,6 +25,20 @@ uses
 type
 
 
+  { TReaderFPReportMemo }
+
+  TReaderFPReportMemo = class(TFPReportMemo)
+  private
+    FPN: string;
+    FRN: string;
+  public
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
+  published
+    property ParentName: string read FPN write FPN;
+    property ReaderName: string read FRN write FRN;
+  end;
+
+
   { TReaderFPReportTitleBand }
 
   TReaderFPReportTitleBand = class(TFPReportTitleBand)
@@ -32,11 +46,82 @@ type
     FPN: string;
     FRN: string;
   public
-    procedure   ReadElement(AReader: TFPReportStreamer); override;
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
   published
     property ParentName: string read FPN write FPN;
     property ReaderName: string read FRN write FRN;
   end;
+
+  { TReaderFPReportSummaryBand }
+
+  TReaderFPReportSummaryBand = class(TFPReportSummaryBand)
+  private
+    FPN: string;
+    FRN: string;
+  public
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
+  published
+    property ParentName: string read FPN write FPN;
+    property ReaderName: string read FRN write FRN;
+  end;
+
+
+
+  { TReaderFPReportGroupHeaderBand }
+
+  TReaderFPReportGroupHeaderBand = class(TFPReportGroupHeaderBand)
+  private
+    FPN: string;
+    FRN: string;
+  public
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
+  published
+    property ParentName: string read FPN write FPN;
+    property ReaderName: string read FRN write FRN;
+  end;
+
+  { TReaderFPReportGroupFooterBand }
+
+  TReaderFPReportGroupFooterBand = class(TFPReportGroupFooterBand)
+  private
+    FPN: string;
+    FRN: string;
+  public
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
+  published
+    property ParentName: string read FPN write FPN;
+    property ReaderName: string read FRN write FRN;
+  end;
+
+  { TReaderFPReportDataBand }
+
+  TReaderFPReportDataBand = class(TFPReportDataBand)
+  private
+    FPN: string;
+    FRN: string;
+  public
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
+  published
+    property ParentName: string read FPN write FPN;
+    property ReaderName: string read FRN write FRN;
+  end;
+  //
+  //
+  //TFPReportChildBand
+  //TFPReportPageHeaderBand
+  //TFPReportPageFooterBand
+  //TFPReportDataHeaderBand
+
+
+
+
+  //TFPReportDataFooterBand
+  //TFPReportColumnHeaderBand
+  //TFPReportColumnFooterBand
+  //TFPReportImage
+  //TFPReportCheckbox
+  //TFPReportShape
+
 
 
   { TReaderFPReportMargins }
@@ -46,7 +131,7 @@ type
     FPN: string;
     FRN: string;
   public
-    procedure   ReadElement(AReader: TFPReportStreamer); override;
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
   published
     property ParentName: string read FPN write FPN;
     property ReaderName: string read FRN write FRN;
@@ -60,7 +145,7 @@ type
     FPN: string;
     FRN: string;
   public
-    procedure   ReadElement(AReader: TFPReportStreamer); override;
+    procedure   ReaderElement(AReader: TFPReportStreamer); //override;
   published
     property ParentName: string read FPN write FPN;
     property ReaderName: string read FRN write FRN;
@@ -84,7 +169,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
-    procedure ReadElement(AReader: TFPReportStreamer); override;
+    procedure ReaderElement(AReader: TFPReportStreamer);
   published
     property ParentName: string read FPN write FPN;
     property ReaderName: string read FRN write FRN;
@@ -106,14 +191,131 @@ var
   procedure UnRegisterStandardReportClasses; forward;
   procedure RegisterStandardReportClasses; forward;
 
+{ TReaderFPReportDataBand }
+
+procedure TReaderFPReportDataBand.ReaderElement(AReader: TFPReportStreamer);
+  Function RBand(Prefix : String) : TFPReportElement;
+  Var
+    S : String;
+  begin
+    Result:=Nil;
+    S:=AReader.ReadString(Prefix+'Band','');
+    if (S<>'') then
+      Result:=Report.FindRecursive(S);
+  end;
+
+begin
+  FSrc.Append('  // DataBand    --');
+  FSrc.Append('  //      Parent='+FPN+' FRN='+FRN);
+  inherited ReadElement(AReader);
+  //FooterBand:=TReaderFPReportDataFooterBand(RBand('Footer'));
+  //HeaderBand:=TReaderFPReportDataHeaderBand(RBand('Header'));
+  MasterBand:=TReaderFPReportDataBand(RBand('Master'));
+  TReaderFPReportDataBand(MasterBand).FPN:= FRN;
+  TReaderFPReportDataBand(MasterBand).FRN:= 'DataBand';
+end;
+
+{ TReaderFPReportGroupFooterBand }
+
+procedure TReaderFPReportGroupFooterBand.ReaderElement(
+  AReader: TFPReportStreamer);
+begin
+  FSrc.Append('  // GroupFooterBand    --');
+  FSrc.Append('  //      Parent='+FPN+' FRN='+FRN);
+  //s := AReader.ReadString('GroupHeader', '');
+  //if s<>'' then
+  //  begin
+  //  c:=Report.FindRecursive(S);
+  //  if Not (C is TFPReportCustomGroupHeaderBand) then
+  //    Report.AddReference(Self,'GroupHeader',S)
+  //  else
+  //    GroupHeader := TFPReportCustomGroupHeaderBand(c);
+  //  end;
+  inherited ReadElement(AReader);
+end;
+
+{ TReaderFPReportGroupHeaderBand }
+
+procedure TReaderFPReportGroupHeaderBand.ReaderElement(
+  AReader: TFPReportStreamer);
+begin
+  FSrc.Append('  // GroupHeaderBand    --');
+  FSrc.Append('  //      Parent='+FPN+' FRN='+FRN);
+  //FGroupCondition := AReader.ReadString('GroupCondition', '');
+  //FStartOnNewSection := StringToReportSection(AReader.ReadString('StartOnNewSection', 'rsNone'));
+  //FReprintedHeader := StringToReportSections(AReader.ReadString('ReprintedHeader', ''));
+  //FIntermediateFooter := StringToReportSections(AReader.ReadString('IntermediateFooter', ''));
+  //FOverflowedFooterNeedsReprintedHeader := StringToReportSections(AReader.ReadString('OverflowedFooterNeedsReprintedHeader', ''));
+  //FOverflowWithFirstDataBand := StringToReportSections(AReader.ReadString('OverflowWithFirstDataBand', 'rsPage,rsColumn'));
+  //S:=AReader.ReadString('ParentGroupHeader','');
+  //if (S<>'') then
+  //  begin
+  //  C:=Report.FindRecursive(S);
+  //  if C is TFPReportCustomGroupHeaderBand then
+  //    ParentGroupHeader:=TFPReportCustomGroupHeaderBand(C)
+  //  else
+  //    Report.AddReference(Self,'ParentGroupHeader',S);
+  //  end;
+  inherited ReadElement(AReader);
+end;
+
+{ TReaderFPReportSummaryBand }
+
+procedure TReaderFPReportSummaryBand.ReaderElement(AReader: TFPReportStreamer);
+begin
+  FSrc.Append('  // SummaryBand    --');
+  FSrc.Append('  //      Parent='+FPN+' FRN='+FRN);
+  //FStartNewPage := AReader.ReadBoolean('StartNewPage', False);
+  inherited ReadElement(AReader);
+end;
+
+{ TReaderFPReportMemo }
+
+procedure TReaderFPReportMemo.ReaderElement(AReader: TFPReportStreamer);
+var
+  E: TObject;
+begin
+  FSrc.Append('  // Memo    --');
+  FSrc.Append('  //      Parent='+FPN+' FRN='+FRN);
+  //E := AReader.FindChild('TextAlignment');
+  //if Assigned(E) then
+  //begin
+  //  AReader.PushElement(E);
+  //  try
+  //    FTextAlignment.ReadElement(AReader);
+  //  finally
+  //    AReader.PopElement;
+  //  end;
+  //end;
+  //FText := AReader.ReadString('Text', '');
+  //FCullThreshold := AReader.ReadInteger('CullThreshold', CullThreshold);
+  //UseParentFont := AReader.ReadBoolean('UseParentFont', UseParentFont);
+  //if not UseParentFont then
+  //  begin
+  //  Font.Name := AReader.ReadString('FontName', Font.Name);
+  //  Font.Size := AReader.ReadInteger('FontSize', Font.Size);
+  //  Font.Color := QWordToReportColor(AReader.ReadQWord('FontColor', Font.Color));
+  //  end
+  //else
+  //  ReAssignParentFont;
+  //FLineSpacing := AReader.ReadFloat('LineSpacing', LineSpacing);
+  //FLinkColor := QWordToReportColor(AReader.ReadQWord('LinkColor', LinkColor));
+  //Options := StringToMemoOptions(AReader.ReadString('Options', ''));
+  //Changed;
+  inherited ReadElement(AReader);
+end;
+
 { TReaderFPReportTitleBand }
 
-procedure TReaderFPReportTitleBand.ReadElement(AReader: TFPReportStreamer);
+procedure TReaderFPReportTitleBand.ReaderElement(AReader: TFPReportStreamer);
 var
   s : string;
 begin
+  FSrc.Append('  // TitleBand');
   s := AReader.ReadString('ChildBand', '');
   FSrc.Append('  // Childband-->'+s);
+  FSrc.Append('  //      Parent='+FPN+' FRN='+FRN);
+  //Parent.
   //if (s<>'') then
   //  Page.Report.AddReference(Self, 'ChildBand', s);
   //FVisibleOnPage := StringToVisibleOnPage(AReader.ReadString('VisibleOnPage', 'vpAll'));
@@ -137,24 +339,20 @@ end;
 
 { TReaderFPReportMargins }
 
-procedure TReaderFPReportMargins.ReadElement(AReader: TFPReportStreamer);
+procedure TReaderFPReportMargins.ReaderElement(AReader: TFPReportStreamer);
 begin
   FSrc.Add(' '+FRN+' := TFPReportMargins.Create('+FPN+');');
   FVari.Add(' '+FRN+' : TFPReportMargins;');
-  //Top := AReader.ReadFloat('Top', Top);
   FSrc.Add(' '+FRN+'.Top := '+FloatToStr(AReader.ReadFloat('Top', Top))+ ';');
-  //Left := AReader.ReadFloat('Left', Left);
   FSrc.Add(' '+FRN+'.Left := '+FloatToStr(AReader.ReadFloat('Left', Left))+ ';');
-  //Bottom := AReader.ReadFloat('Bottom', Bottom);
   FSrc.Add(' '+FRN+'.Bottom := '+FloatToStr(AReader.ReadFloat('Bottom', Bottom))+ ';');
-  //Right := AReader.ReadFloat('Right', Right);
   FSrc.Add(' '+FRN+'.Right := '+FloatToStr(AReader.ReadFloat('Right', Right))+ ';');
   inherited ReadElement(AReader);
 end;
 
 { TReaderFPReportPage }
 
-procedure TReaderFPReportPage.ReadElement(AReader: TFPReportStreamer);
+procedure TReaderFPReportPage.ReaderElement(AReader: TFPReportStreamer);
 var
   E: TObject;
   XMargins: TReaderFPReportMargins;
@@ -266,7 +464,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TReaderFPReport.ReadElement(AReader: TFPReportStreamer);
+procedure TReaderFPReport.ReaderElement(AReader: TFPReportStreamer);
 var
   E: TObject;
   i: integer;
@@ -280,7 +478,7 @@ begin
     AReader.PushElement(E);
     FSrc.Add(' // Report found');
     try
-      inherited ReadElement(AReader);
+      //inherited ReadElement(AReader);
       FSrc.Add(' '+FRN+'.Title := '''+AReader.ReadString('Title',Title)+''';');
       FSrc.Add(' '+FRN+'.Author := '''+AReader.ReadString('Author',Author)+''';');
       FSrc.Add(' '+FRN+'.TwoPass := '+ BoolToStr(AReader.ReadBoolean('TwoPass',TwoPass),'True','False')+';');
@@ -318,7 +516,7 @@ begin
             p := TReaderFPReportPage.Create(self);
             p.ParentName:= FRN;
             p.ReaderName:= 'Page_'+RightStr('0000'+IntToStr(i),4);
-            p.ReadElement(AReader);
+            p.ReaderElement(AReader);
           finally
             AReader.PopElement;
           end;
@@ -367,7 +565,7 @@ Procedure UnRegisterStandardReportClasses;
 
 begin
   TFPReportTitleBand.UnRegisterElement;
-  //TFPReportSummaryBand.UnRegisterElement;
+  TFPReportSummaryBand.UnRegisterElement;
   //TFPReportGroupHeaderBand.UnRegisterElement;
   //TFPReportGroupFooterBand.UnRegisterElement;
   //TFPReportDataBand.UnRegisterElement;
@@ -378,7 +576,7 @@ begin
   //TFPReportDataFooterBand.UnRegisterElement;
   //TFPReportColumnHeaderBand.UnRegisterElement;
   //TFPReportColumnFooterBand.UnRegisterElement;
-  //TFPReportMemo.UnRegisterElement;
+  TFPReportMemo.UnRegisterElement;
   //TFPReportImage.UnRegisterElement;
   //TFPReportCheckbox.UnRegisterElement;
   //TFPReportShape.UnRegisterElement;
@@ -388,7 +586,7 @@ end;
 Procedure RegisterReaderReportClasses;
 begin
   TReaderFPReportTitleBand.RegisterElement;
-  //TReaderFPReportSummaryBand.RegisterElement;
+  TReaderFPReportSummaryBand.RegisterElement;
   //TReaderFPReportGroupHeaderBand.RegisterElement;
   //TReaderFPReportGroupFooterBand.RegisterElement;
   //TReaderFPReportDataBand.RegisterElement;
@@ -399,7 +597,7 @@ begin
   //TReaderFPReportDataFooterBand.RegisterElement;
   //TReaderFPReportColumnHeaderBand.RegisterElement;
   //TReaderFPReportColumnFooterBand.RegisterElement;
-  //TReaderFPReportMemo.RegisterElement.FStandard:=True;
+  TReaderFPReportMemo.RegisterElement;
   //TReaderFPReportImage.RegisterElement.FStandard:=True;
   //TReaderFPReportCheckbox.RegisterElement.FStandard:=True;
   //TReaderFPReportShape.RegisterElement.FStandard:=True;
