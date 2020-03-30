@@ -64,3 +64,4 @@ __history/
 __recovery/
 *.~*
 /source/bin
+/source/fpreport2src/bin/fpr2src_test.pas
