@@ -1,3 +1,17 @@
+{
+    Copyright (c) 2020 Andreas Friess
+
+    report definition to pascal source file.
+
+    Licence LGPL with extension
+
+    See the file COPYING.modified.LGPL for details about the copyright.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+ **********************************************************************}
 program fpr2src_dsgctrl;
 
 {$mode objfpc}{$H+}
@@ -7,8 +21,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, fpr2src_dsgctrl_main, fpr2src_reader_report, fpreportdesignobjectlist
-  { you can add units after this };
+  Forms, fpr2src_dsgctrl_main;
 
 {$R *.res}
 

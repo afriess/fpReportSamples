@@ -67,7 +67,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="3">
       <Unit0>
         <Filename Value="fpr2src_dsgctrl.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -80,17 +80,9 @@
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
-        <Filename Value="fpr2src_reader_report.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit2>
-      <Unit3>
         <Filename Value="fp2src_dsgnctrl.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="dummy\fpreportdesignobjectlist.pp"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -101,7 +93,6 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="dummy"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
