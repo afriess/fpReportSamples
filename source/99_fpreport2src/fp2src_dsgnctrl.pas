@@ -1,6 +1,6 @@
 {
     Copyright (c) 2020 Andreas Friess
-    Parts are Copyright (c) 2008 Michael Van Canneyt
+    Parts (from fpreport) are Copyright (c) 2008 Michael Van Canneyt
 
     report definition to pascal source file.
 
@@ -425,6 +425,9 @@ begin
   FSrc.Append(' '+FRN+' := TFPReportCheckbox.Create('+FPN+');');
   AddVari(' '+FRN+' : TFPReportCheckbox;');
   MakeSrcReportElement(FRN,AElement);
+  FSrc.Append(' '+FRN+'.CornerRadius := '''+aCB.Expression+ ''';');
+  FSrc.Append(' '+FRN+'.TrueImageID := '+IntToStr(aCB.TrueImageID)+ ';');
+  FSrc.Append(' '+FRN+'.FalseImageID := '+IntToStr(aCB.FalseImageID)+ ';');
 end;
 
 procedure TSrcReportObjectList.WriteSrcUnkown(AElement: TFPReportElement);
