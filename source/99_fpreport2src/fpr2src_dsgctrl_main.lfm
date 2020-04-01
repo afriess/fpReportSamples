@@ -4,10 +4,9 @@ object Frmfpr2src: TFrmfpr2src
   Top = 250
   Width = 654
   Caption = 'fpreport to source'
-  ClientHeight = 387
+  ClientHeight = 407
   ClientWidth = 654
   Menu = MainMenu1
-  LCLVersion = '2.0.7.0'
   object EdtSrc: TEdit
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
@@ -60,13 +59,14 @@ object Frmfpr2src: TFrmfpr2src
   end
   object Memo1: TMemo
     AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = BuExporter
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = StatusBar1
     Left = 0
-    Height = 273
-    Top = 111
+    Height = 278
+    Top = 106
     Width = 654
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Top = 10
@@ -77,15 +77,29 @@ object Frmfpr2src: TFrmfpr2src
     TabOrder = 3
   end
   object BuExporter: TButton
-    AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Side = asrCenter
+    AnchorSideLeft.Control = EdtDest
+    AnchorSideTop.Control = EdtDest
+    AnchorSideTop.Side = asrBottom
     Left = 10
     Height = 25
-    Top = 72
+    Top = 71
     Width = 131
     Action = ActConvertExporter
-    BorderSpacing.Left = 15
+    BorderSpacing.Top = 10
     TabOrder = 4
+  end
+  object CBShowSource: TCheckBox
+    AnchorSideLeft.Control = BuExporter
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = BuExporter
+    AnchorSideTop.Side = asrCenter
+    Left = 166
+    Height = 19
+    Top = 74
+    Width = 88
+    BorderSpacing.Left = 25
+    Caption = 'Show Source'
+    TabOrder = 5
   end
   object ActionList1: TActionList
     Left = 392
@@ -94,12 +108,46 @@ object Frmfpr2src: TFrmfpr2src
       Caption = 'Convert Exporter'
       OnExecute = ActConvertExporterExecute
     end
+    object Action1: TAction
+      Caption = 'Action1'
+    end
+    object FileExit: TFileExit
+      Category = 'File'
+      Caption = 'E&xit'
+      Hint = 'Exit'
+    end
+    object FileOpen: TFileOpen
+      Category = 'File'
+      Caption = '&Open ...'
+      Hint = 'Open'
+      ShortCut = 16463
+      OnAccept = FileOpenAccept
+    end
   end
   object MainMenu1: TMainMenu
     Left = 471
     Top = 152
+    object MnuMainFile: TMenuItem
+      Caption = 'File'
+      object MnuOpen: TMenuItem
+        Action = FileOpen
+      end
+      object MnuMRU: TMenuItem
+        Caption = 'Open Recent'
+      end
+      object MnuClose: TMenuItem
+        Action = FileExit
+      end
+    end
     object MenuItem2: TMenuItem
       Action = ActConvertExporter
     end
+  end
+  object MRUMenuManager: TMRUMenuManager
+    MenuItem = MnuMRU
+    MenuCaptionMask = '%0:d.  %1:s'
+    OnRecentFile = MRUMenuManagerRecentFile
+    Left = 262
+    Top = 163
   end
 end

@@ -20,7 +20,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ActnList,
-  Menus, ComCtrls, fpreport;
+  Menus, ComCtrls, StdActns, mrumanager, fpreport;
 
 type
 
@@ -28,15 +28,27 @@ type
 
   TFrmfpr2src = class(TForm)
     ActConvertExporter: TAction;
+    Action1: TAction;
     ActionList1: TActionList;
     BuExporter: TButton;
+    CBShowSource: TCheckBox;
     EdtSrc: TEdit;
     EdtDest: TEdit;
+    FileExit: TFileExit;
+    FileOpen: TFileOpen;
     MainMenu1: TMainMenu;
     Memo1: TMemo;
+    MnuOpen: TMenuItem;
+    MnuClose: TMenuItem;
+    MnuMRU: TMenuItem;
+    MnuMainFile: TMenuItem;
     MenuItem2: TMenuItem;
+    MRUMenuManager: TMRUMenuManager;
     StatusBar1: TStatusBar;
     procedure ActConvertExporterExecute(Sender: TObject);
+    procedure FileOpenAccept(Sender: TObject);
+    procedure MRUMenuManagerRecentFile(Sender: TObject; const AFileName: String
+      );
   private
     FSrcReport: TFPReport;
     procedure LoadExportReport(AFilename: string);
@@ -65,7 +77,6 @@ var
   rs: TFPReportJSONStreamer;
   fs: TFileStream;
   lJSON: TJSONObject;
-  str : String;
   dsg: TSrcFPReportDesignerControl;
 begin
   // read from stream
@@ -79,8 +90,6 @@ begin
   rs := TFPReportJSONStreamer.Create(nil);
   rs.JSON := lJSON; // rs takes ownership of lJSON
   try
-    //FSrcReport.ParentName:= 'Report';
-    //FSrcReport.ReaderName:= 'FReport';
     FSrcReport.ReadElement(rs);
   finally
     FreeAndNil(rs);
@@ -93,15 +102,13 @@ begin
   finally
     dsg.Free;
   end;
-  //FSrcReport.AutoSave:=false;
-  Memo1.Append('');
-  str:=Memo1.Lines.DelimitedText+GetSourceCode;
-  Memo1.Lines.DelimitedText:=str;
-  Memo1.Append('');
 end;
 
 
 procedure TFrmfpr2src.ActConvertExporterExecute(Sender: TObject);
+var
+  str : String;
+  sl: TStringList;
 begin
   Memo1.Clear;
   Memo1.Append('Start Exporter');
@@ -114,15 +121,47 @@ begin
     Memo1.Append('File:'+EdtSrc.Text+' not found');
   end;
   Memo1.Append('load report');
-  Memo1.Append('---------- start ------------------');
   LoadExportReport(EdtSrc.Text);
-  Memo1.Append('----------- end  -----------------');
+  if CBShowSource.Checked then begin
+    Memo1.Append('---------- start ------------------');
+    Memo1.Append('');
+    str:=Memo1.Lines.DelimitedText+GetSourceCode;
+    Memo1.Lines.DelimitedText:=str;
+    Memo1.Append('');
+    Memo1.Append('----------- end  -----------------');
+  end;
   Memo1.Append('report name='+FSrcReport.Name);
   Memo1.Append('convert report');
   if FileExists(EdtDest.Text) then begin
-    Memo1.Append('File:'+EdtSrc.Text+' exists - exit');
+    Memo1.Append('File:'+EdtDest.Text+' exists - exit');
+    Memo1.Append('exporter finished with error');
+  end
+  else begin
+    sl := TStringList.Create;
+    try
+      sl.DelimitedText:= GetSourceCode;
+      sl.SaveToFile(EdtDest.Text);
+      Memo1.Append('Saved as:'+EdtDest.Text);
+    finally
+      sl.Free;
+    end;
+    Memo1.Append('exporter finished');
   end;
-  Memo1.Append('exporter finished');
+end;
+
+procedure TFrmfpr2src.FileOpenAccept(Sender: TObject);
+begin
+  if Sender is TFileOpen then begin
+    EdtSrc.Text:= TFileOpen(Sender).Dialog.FileName;
+    MRUMenuManager.AddToRecent(EdtSrc.Text);
+    EdtDest.Text:= ChangeFileExt(EdtSrc.Text,'.pas');
+  end;
+end;
+
+procedure TFrmfpr2src.MRUMenuManagerRecentFile(Sender: TObject;
+  const AFileName: String);
+begin
+
 end;
 
 end.
