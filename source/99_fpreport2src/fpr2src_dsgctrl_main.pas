@@ -1,7 +1,8 @@
 {
     Copyright (c) 2020 Andreas Friess
+    Parts (from fpreport) are Copyright (c) 2008 Michael Van Canneyt
 
-    report definition to pascal source file.
+    report definition to pascal source file converter.
 
     Licence LGPL with extension
 
@@ -47,10 +48,14 @@ type
     StatusBar1: TStatusBar;
     procedure ActConvertExporterExecute(Sender: TObject);
     procedure FileOpenAccept(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
     procedure MRUMenuManagerRecentFile(Sender: TObject; const AFileName: String
       );
   private
     FSrcReport: TFPReport;
+    procedure DoImportLog(Sender: TOBject; const Msg: String);
+    procedure LoadExportLazReport(AFilename: string);
     procedure LoadExportReport(AFilename: string);
   public
 
@@ -62,7 +67,7 @@ var
 implementation
 
 uses
-  fpjson, FPReportStreamer, fp2src_dsgnctrl;
+  fpjson, FPReportStreamer, fp2src_dsgnctrl, fplazreport;
 
 {$R *.lfm}
 
@@ -98,10 +103,50 @@ begin
   Memo1.Append('Pages='+IntToStr(FSrcReport.PageCount));
   dsg := TSrcFPReportDesignerControl.Create(nil);
   try
-    dsg.Page := FSrcReport.Pages[0];
+    dsg.LoadFromReport(FSrcReport);
   finally
     dsg.Free;
   end;
+end;
+
+procedure TFrmfpr2src.DoImportLog(Sender: TOBject; const Msg: String);
+begin
+  Memo1.Append(Msg);
+end;
+
+procedure TFrmfpr2src.LoadExportLazReport(AFilename:string);
+var
+  OFN : String;
+  R : TFPLazReport;
+  S : TFPReportJSONStreamer;
+  J : TJSONStringType;
+begin
+  //
+  Memo1.Append('Convert LazReport -->> fpReport');
+  Memo1.Append('---------- start convert ---------------');
+  // Start from fpreport is Copyright (c) 2008 Michael Van Canneyt
+  OFN:=ChangeFileExt(AFilename,'.json');
+  R:=TFPLazReport.Create(Self);
+  try
+    // Reset.
+    R.OnLog:=@DoImportLog;
+    R.LoadFromFile(AFilename);
+    S:=TFPReportJSONStreamer.Create(Self);
+    R.WriteElement(S,Nil);
+    S.JSON.Add('DesignData',TJSONObject.Create);
+    J:=S.JSON.FormatJSON( );
+    With TFileStream.Create(OFN,fmCreate) do
+      try
+        WriteBuffer(J[1],Length(J));
+      finally
+        Free;
+      end;
+  finally
+    R.Free;
+  end;
+  // End from fpreport is Copyright (c) 2008 Michael Van Canneyt
+  Memo1.Append('---------- end  convert ---------------');
+  LoadExportReport(OFN);
 end;
 
 
@@ -121,7 +166,14 @@ begin
     Memo1.Append('File:'+EdtSrc.Text+' not found');
   end;
   Memo1.Append('load report');
-  LoadExportReport(EdtSrc.Text);
+  if SameStr(LowerCase(ExtractFileExt(EdtSrc.Text)),'.lrf') then begin
+    // Reportformat is LazReport !!
+    LoadExportLazReport(EdtSrc.Text);
+  end
+  else begin
+    // We think/hope it is fpReport
+    LoadExportReport(EdtSrc.Text);
+  end;
   if CBShowSource.Checked then begin
     Memo1.Append('---------- start ------------------');
     Memo1.Append('');
@@ -158,10 +210,40 @@ begin
   end;
 end;
 
+procedure TFrmfpr2src.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  MRUMenuManager.SaveRecentFilesToIni;
+end;
+
+procedure TFrmfpr2src.FormCreate(Sender: TObject);
+begin
+  FileOpen.Dialog.DefaultExt:= '*.json';
+  FileOpen.Dialog.Filter:='fpReport|*.json|LazReport|*.lrf|AllFiles|*.*';
+  with MRUMenuManager do begin
+    IniFileName := ChangeFileExt(ParamStr(0), '.ini');
+    MaxItemLength := 80;
+    MenuCaptionMask := '(%d) %s';
+    LoadRecentFilesFromIni;
+    maxRecent := 15;
+  end;
+end;
+
 procedure TFrmfpr2src.MRUMenuManagerRecentFile(Sender: TObject;
   const AFileName: String);
+var
+  idx : integer;
 begin
-
+  if FileExists(AFileName) then begin
+    EdtSrc.Text := AFileName;
+    EdtDest.Text:= ChangeFileExt(EdtSrc.Text,'.pas');
+  end
+  else begin
+    // File not found, clear it from MRU
+    ShowMessage('File '+AFileName+' not found');
+    idx:= MRUMenuManager.Recent.IndexOf(AFileName);
+    if idx >= 0 then
+      MRUMenuManager.Recent.Delete(idx);
+  end;
 end;
 
 end.

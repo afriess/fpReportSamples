@@ -37,7 +37,6 @@ type
 
   TSrcReportObjectList = class(TReportObjectList)
   private
-    FPage: TFPReportCustomPage;
     function ClassNameToName(CN: string): string;
     procedure MakeSrcReportFont(FRN: string; AAElement: TFPReportCustomBand);
     procedure MakeSrcReportFont(FRN: string; AAElement: TFPReportMemo);
@@ -45,16 +44,24 @@ type
     procedure WriteSrcPage(AElement: TFPReportElement);
     // Bands
     procedure WriteSrcTitleBand(AElement: TFPReportElement);
-    procedure WriteSrcDateBand(AElement: TFPReportElement);
-    procedure WriteSrcDataHeaderBand(AElement: TFPReportElement);
-    procedure WriteSrcPageFooterBand(AElement: TFPReportElement);
-    procedure WriteSrcPageHeaderBand(AElement: TFPReportElement);
     procedure WriteSrcSummaryBand(AElement: TFPReportElement);
+    procedure WriteSrcGoupHeaderBand(AElement: TFPReportElement);
+    procedure WriteSrcGoupFooterBand(AElement: TFPReportElement);
+    procedure WriteSrcDateBand(AElement: TFPReportElement);
+    procedure WriteSrcChildBand(AElement: TFPReportElement);
+    procedure WriteSrcPageHeaderBand(AElement: TFPReportElement);
+    procedure WriteSrcPageFooterBand(AElement: TFPReportElement);
+    procedure WriteSrcDataHeaderBand(AElement: TFPReportElement);
+    procedure WriteSrcDataFooterBand(AElement: TFPReportElement);
+    procedure WriteSrcColumnHeaderBand(AElement: TFPReportElement);
+    procedure WriteSrcColumnFooterBand(AElement: TFPReportElement);
+
     // Elements
     procedure WriteSrcMemo(AElement: TFPReportElement);
-    procedure WriteSrcShape(AElement: TFPReportElement);
     procedure WriteSrcImage(AElement: TFPReportElement);
     procedure WriteSrcCheckBox(AElement: TFPReportElement);
+    procedure WriteSrcShape(AElement: TFPReportElement);
+    // Unknown Elements
     procedure WriteSrcUnkown(AElement: TFPReportElement);
     procedure WriteSrcUnkownBand(AElement: TFPReportElement);
     procedure WriteSrcUnkownPage(AElement: TFPReportElement);
@@ -64,6 +71,7 @@ type
   public
     procedure WriteSrc(AElement: TReportObject);
     Procedure LoadFromPage(APage : TFPReportCustomPage);reintroduce;
+    Procedure LoadFromReport(aReport : TFPReport);
     function AddElement(AElement: TFPReportElement): TReportObject;reintroduce;
     function AddBand(ABand: TFPReportCustomBand): TReportObject;reintroduce;
   end;
@@ -81,6 +89,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure LoadFromReport(aReport : TFPReport);
   published
     Property Page : TFPReportCustomPage Read FPage Write SetPage;
   end;
@@ -138,7 +147,7 @@ begin
     TmpSrc.Append('');
     TmpStr:= TmpSrc.DelimitedText + FSrc.DelimitedText;
     TmpSrc.DelimitedText:= TmpStr;
-    TmpSrc.Append('end');
+    TmpSrc.Append('end;');
     TmpSrc.Append('');
     TmpSrc.Append('end.');
     TmpSrc.Append('');
@@ -220,6 +229,7 @@ begin
     FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aTitle.Font.Color,8)+ ');');
   end;
   FSrc.Append(' '+FRN+'.KeepTogetherWithChildren := '+BoolToStr(aTitle.KeepTogetherWithChildren,'True','False')+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aTitle.VisibleOnPage))+ ';');
   FSrc.Append(' //'+FRN+'.OnBeforePrint := @;');
 end;
 
@@ -253,6 +263,35 @@ begin
   FSrc.Append(' //'+FRN+'.OnBeforePrint := @;');
 end;
 
+procedure TSrcReportObjectList.WriteSrcChildBand(AElement: TFPReportElement);
+var
+  FPN, FRN: string;
+  aBand : TFPReportChildBand;
+begin
+  if not (AElement is TFPReportChildBand) then
+    exit; //==>
+  aBand:= TFPReportChildBand(AElement);
+  if AElement.Parent = nil then
+    FPN := coNoParent
+  else
+    FPN := ClassNameToName(AElement.Parent.ClassName);
+  FRN := ClassNameToName(AElement.ClassName);
+  FSrc.Append('');
+  FSrc.Append('  // ChildBand    -- Parent='+FPN+' FRN='+FRN);
+  FSrc.Append(' '+FRN+' := TFPReportChildBand.Create('+FPN+');');
+  AddVari(' '+FRN+' : TFPReportChildBand;');
+  FSrc.Append(' '+FRN+'.UseParentFont := '+BoolToStr(aBand.UseParentFont,'True','False')+ ';');
+  if not aBand.UseParentFont then begin
+    FSrc.Append(' '+FRN+'.Font.Name := '''+ aBand.Font.Name+ ''';');
+    FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aBand.Font.Size)+ ';');
+    FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aBand.Font.Color,8)+ ');');
+  end;
+  FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aBand.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aBand.VisibleOnPage))+ ';');
+  //property    ChildBand;
+  //property    OnBeforePrint;
+end;
+
 procedure TSrcReportObjectList.WriteSrcDataHeaderBand(AElement: TFPReportElement
   );
 var
@@ -278,6 +317,99 @@ begin
     FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aBand.Font.Color,8)+ ');');
   end;
   FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aBand.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aBand.VisibleOnPage))+ ';');
+end;
+
+procedure TSrcReportObjectList.WriteSrcDataFooterBand(AElement: TFPReportElement
+  );
+var
+  FPN, FRN: string;
+  aFooter : TFPReportDataFooterBand;
+begin
+  if not (AElement is TFPReportDataFooterBand) then
+    exit; //==>
+  aFooter:= TFPReportDataFooterBand(AElement);
+  if AElement.Parent = nil then
+    FPN := coNoParent
+  else
+    FPN := ClassNameToName(AElement.Parent.ClassName);
+  FRN := ClassNameToName(AElement.ClassName);
+  FSrc.Append('');
+  FSrc.Append('  // DataFooterBand    -- Parent='+FPN+' FRN='+FRN);
+  FSrc.Append(' '+FRN+' := TFPReportDataFooterBand.Create('+FPN+');');
+  AddVari(' '+FRN+' : TFPReportDataFooterBand;');
+  FSrc.Append(' '+FRN+'.UseParentFont := '+BoolToStr(aFooter.UseParentFont,'True','False')+ ';');
+  if not aFooter.UseParentFont then begin
+    FSrc.Append(' '+FRN+'.Font.Name := '''+ aFooter.Font.Name+ ''';');
+    FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aFooter.Font.Size)+ ';');
+    FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aFooter.Font.Color,8)+ ');');
+  end;
+  FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aFooter.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aFooter.VisibleOnPage))+ ';');
+  //property    BandPosition;
+  //property    OnBeforePrint;
+end;
+
+procedure TSrcReportObjectList.WriteSrcColumnHeaderBand(
+  AElement: TFPReportElement);
+var
+  FPN, FRN: string;
+  aHeader : TFPReportColumnHeaderBand;
+begin
+  if not (AElement is TFPReportColumnHeaderBand) then
+    exit; //==>
+  aHeader:= TFPReportColumnHeaderBand(AElement);
+  if AElement.Parent = nil then
+    FPN := coNoParent
+  else
+    FPN := ClassNameToName(AElement.Parent.ClassName);
+  FRN := ClassNameToName(AElement.ClassName);
+  FSrc.Append('');
+  FSrc.Append('  // ColumnHeaderBand    -- Parent='+FPN+' FRN='+FRN);
+  FSrc.Append(' '+FRN+' := TFPReportColumnHeaderBand.Create('+FPN+');');
+  AddVari(' '+FRN+' : TFPReportColumnHeaderBand;');
+  FSrc.Append(' '+FRN+'.UseParentFont := '+BoolToStr(aHeader.UseParentFont,'True','False')+ ';');
+  if not aHeader.UseParentFont then begin
+    FSrc.Append(' '+FRN+'.Font.Name := '''+ aHeader.Font.Name+ ''';');
+    FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aHeader.Font.Size)+ ';');
+    FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aHeader.Font.Color,8)+ ');');
+  end;
+  FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aHeader.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aHeader.VisibleOnPage))+ ';');
+  //property    ChildBand;
+  //property    Data;
+  //property    OnBeforePrint;
+
+end;
+
+procedure TSrcReportObjectList.WriteSrcColumnFooterBand(
+  AElement: TFPReportElement);
+var
+  FPN, FRN: string;
+  aFooter : TFPReportColumnFooterBand;
+begin
+  if not (AElement is TFPReportColumnFooterBand) then
+    exit; //==>
+  aFooter:= TFPReportColumnFooterBand(AElement);
+  if AElement.Parent = nil then
+    FPN := coNoParent
+  else
+    FPN := ClassNameToName(AElement.Parent.ClassName);
+  FRN := ClassNameToName(AElement.ClassName);
+  FSrc.Append('');
+  FSrc.Append('  // ColumnFooterBand    -- Parent='+FPN+' FRN='+FRN);
+  FSrc.Append(' '+FRN+' := TFPReportColumnFooterBand.Create('+FPN+');');
+  AddVari(' '+FRN+' : TFPReportColumnFooterBand;');
+  FSrc.Append(' '+FRN+'.UseParentFont := '+BoolToStr(aFooter.UseParentFont,'True','False')+ ';');
+  if not aFooter.UseParentFont then begin
+    FSrc.Append(' '+FRN+'.Font.Name := '''+ aFooter.Font.Name+ ''';');
+    FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aFooter.Font.Size)+ ';');
+    FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aFooter.Font.Color,8)+ ');');
+  end;
+  FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aFooter.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aFooter.VisibleOnPage))+ ';');
+  //property    BandPosition;
+  //property    OnBeforePrint;
 end;
 
 procedure TSrcReportObjectList.WriteSrcSummaryBand(AElement: TFPReportElement);
@@ -304,6 +436,80 @@ begin
     FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aSummary.Font.Color,8)+ ');');
   end;
   FSrc.Append(' '+FRN+'.StartNewPage := '+BoolToStr(aSummary.StartNewPage,'True','False')+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aSummary.VisibleOnPage))+ ';');
+end;
+
+procedure TSrcReportObjectList.WriteSrcGoupHeaderBand(AElement: TFPReportElement
+  );
+var
+  FPN, FRN: string;
+  aHeader : TFPReportGroupHeaderBand;
+begin
+  if not (AElement is TFPReportGroupHeaderBand) then
+    exit; //==>
+  aHeader:= TFPReportGroupHeaderBand(AElement);
+  if AElement.Parent = nil then
+    FPN := coNoParent
+  else
+    FPN := ClassNameToName(AElement.Parent.ClassName);
+  FRN := ClassNameToName(AElement.ClassName);
+  FSrc.Append('');
+  FSrc.Append('  // GroupHeaderBand    -- Parent='+FPN+' FRN='+FRN);
+  FSrc.Append(' '+FRN+' := TFPReportGroupHeaderBand.Create('+FPN+');');
+  AddVari(' '+FRN+' : TFPReportGroupHeaderBand;');
+  FSrc.Append(' '+FRN+'.UseParentFont := '+BoolToStr(aHeader.UseParentFont,'True','False')+ ';');
+  if not aHeader.UseParentFont then begin
+    FSrc.Append(' '+FRN+'.Font.Name := '''+ aHeader.Font.Name+ ''';');
+    FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aHeader.Font.Size)+ ';');
+    FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aHeader.Font.Color,8)+ ');');
+  end;
+  FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aHeader.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.KeepTogetherWithChildren := '+BoolToStr(aHeader.KeepTogetherWithChildren,'True','False')+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aHeader.VisibleOnPage))+ ';');
+  //property    ChildBand;
+  //property    GroupCondition;
+  //property    ParentGroupHeader;
+  //property    OnBeforePrint;
+  //property    StartOnNewSection;
+  //property    ReprintedHeader;
+  //property    OverflowedFooterNeedsReprintedHeader;
+  //property    IntermediateFooter;
+  //property    OverflowWithFirstDataBand;
+  //property    BandPosition;
+end;
+
+procedure TSrcReportObjectList.WriteSrcGoupFooterBand(AElement: TFPReportElement
+  );
+var
+  FPN, FRN: string;
+  aFooter : TFPReportGroupFooterBand;
+begin
+  if not (AElement is TFPReportGroupFooterBand) then
+    exit; //==>
+  aFooter:= TFPReportGroupFooterBand(AElement);
+  if AElement.Parent = nil then
+    FPN := coNoParent
+  else
+    FPN := ClassNameToName(AElement.Parent.ClassName);
+  FRN := ClassNameToName(AElement.ClassName);
+  FSrc.Append('');
+  FSrc.Append('  // GroupFooterBand    -- Parent='+FPN+' FRN='+FRN);
+  FSrc.Append(' '+FRN+' := TFPReportGroupFooterBand.Create('+FPN+');');
+  AddVari(' '+FRN+' : TFPReportGroupFooterBand;');
+  FSrc.Append(' '+FRN+'.UseParentFont := '+BoolToStr(aFooter.UseParentFont,'True','False')+ ';');
+  if not aFooter.UseParentFont then begin
+    FSrc.Append(' '+FRN+'.Font.Name := '''+ aFooter.Font.Name+ ''';');
+    FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aFooter.Font.Size)+ ';');
+    FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aFooter.Font.Color,8)+ ');');
+  end;
+  FSrc.Append(' '+FRN+'.StretchMode := '+GetEnumName(TypeInfo(TFPReportStretchMode),Ord(aFooter.StretchMode))+ ';');
+  FSrc.Append(' '+FRN+'.KeepTogetherWithChildren := '+BoolToStr(aFooter.KeepTogetherWithChildren,'True','False')+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aFooter.VisibleOnPage))+ ';');
+  //property    ChildBand;
+  //property    GroupHeader;
+  //property    BandPosition;
+  //property    OnBeforePrint;
+
 end;
 
 procedure TSrcReportObjectList.WriteSrcPageHeaderBand(AElement: TFPReportElement);
@@ -329,6 +535,7 @@ begin
     FSrc.Append(' '+FRN+'.Font.Size := '+IntToStr(aHeader.Font.Size)+ ';');
     FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aHeader.Font.Color,8)+ ');');
   end;
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aHeader.VisibleOnPage))+ ';');
   //FSrc.Append(' '+FRN+'.StartNewPage := '+BoolToStr(aSummary.StartNewPage,'True','False')+ ';');
 end;
 
@@ -357,6 +564,7 @@ begin
     FSrc.Append(' '+FRN+'.Font.Color := TFPReportColor($'+IntToHex(aFooter.Font.Color,8)+ ');');
   end;
   FSrc.Append(' '+FRN+'.KeepTogetherWithChildren := '+BoolToStr(aFooter.KeepTogetherWithChildren,'True','False')+ ';');
+  FSrc.Append(' '+FRN+'.VisibleOnPage := '+GetEnumName(TypeInfo(TFPReportVisibleOnPage),Ord(aFooter.VisibleOnPage))+ ';');
 end;
 
 
@@ -563,6 +771,7 @@ begin
   FSrc.Append(' '+FRN+'.VisibleExpr := '''+AAElement.VisibleExpr+ ''';');
 end;
 
+// see fpreport RegisterStandardReportClasses
 procedure TSrcReportObjectList.WriteSrc(AElement: TReportObject);
 begin
   if AElement.IsPage then begin
@@ -576,26 +785,38 @@ begin
       WriteSrcTitleBand(AElement.Element)
     else if AElement.Element is TFPReportSummaryBand then
       WriteSrcSummaryBand(AElement.Element)
+    else if AElement.Element is TFPReportGroupHeaderBand then
+      WriteSrcGoupHeaderBand(AElement.Element)
+    else if AElement.Element is TFPReportGroupFooterBand then
+      WriteSrcGoupFooterBand(AElement.Element)
+    else if AElement.Element is TFPReportDataBand then
+      WriteSrcDateBand(AElement.Element)
+    else if AElement.Element is TFPReportChildBand then
+      WriteSrcChildBand(AElement.Element)
     else if AElement.Element is TFPReportPageHeaderBand then
       WriteSrcPageHeaderBand(AElement.Element)
     else if AElement.Element is TFPReportPageFooterBand then
       WriteSrcPageFooterBand(AElement.Element)
-    else if AElement.Element is TFPReportDataBand then
-      WriteSrcDateBand(AElement.Element)
     else if AElement.Element is TFPReportDataHeaderBand then
       WriteSrcDataHeaderBand(AElement.Element)
+    else if AElement.Element is TFPReportDataFooterBand then
+      WriteSrcDataFooterBand(AElement.Element)
+    else if AElement.Element is TFPReportColumnHeaderBand then
+      WriteSrcColumnHeaderBand(AElement.Element)
+    else if AElement.Element is TFPReportColumnFooterBand then
+      WriteSrcColumnFooterBand(AElement.Element)
     else
       WriteSrcUnkownBand(AElement.Element);
   end;
   if AElement.IsPlainElement then begin
     if AElement.Element is TFPReportMemo then
       WriteSrcMemo(AElement.Element)
-    else if AElement.Element is TFPReportShape then
-      WriteSrcShape(AElement.Element)
     else if AElement.Element is TFPReportImage then
       WriteSrcImage(AElement.Element)
     else if AElement.Element is TFPReportCheckBox then
       WriteSrcCheckBox(AElement.Element)
+    else if AElement.Element is TFPReportShape then
+      WriteSrcShape(AElement.Element)
     else WriteSrcUnkown(AElement.Element);
   end;
 end;
@@ -604,10 +825,18 @@ procedure TSrcReportObjectList.LoadFromPage(APage: TFPReportCustomPage);
 begin
   {$IFDEF DEBUGROL}Writeln('LoadFromPage');{$ENDIF}
   Clear;
-  FSrc.Clear;
-  FVari.Clear;
   AddElement(APage);
-  FPage:=APage;
+end;
+
+procedure TSrcReportObjectList.LoadFromReport(aReport: TFPReport);
+var
+  i: Integer;
+begin
+  {$IFDEF DEBUGROL}Writeln('LoadFromReport');{$ENDIF}
+  for i := 0 to aReport.PageCount-1 do begin
+    Clear;
+    AddElement(aReport.Pages[i]);
+  end;
 end;
 
 function TSrcReportObjectList.AddElement(AElement: TFPReportElement
@@ -646,6 +875,8 @@ end;
 procedure TSrcFPReportDesignerControl.SetPage(AValue: TFPReportCustomPage);
 begin
   if FPage=AValue then Exit;
+  FSrc.Clear;
+  FVari.Clear;
   FPage:=AValue;
   FObjects.LoadFromPage(AValue);
 end;
@@ -660,6 +891,13 @@ destructor TSrcFPReportDesignerControl.Destroy;
 begin
   FObjects.Free;
   inherited Destroy;
+end;
+
+procedure TSrcFPReportDesignerControl.LoadFromReport(aReport: TFPReport);
+begin
+  FSrc.Clear;
+  FVari.Clear;
+  FObjects.LoadFromReport(aReport);
 end;
 
 initialization

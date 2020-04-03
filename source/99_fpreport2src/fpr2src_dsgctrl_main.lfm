@@ -7,6 +7,8 @@ object Frmfpr2src: TFrmfpr2src
   ClientHeight = 407
   ClientWidth = 654
   Menu = MainMenu1
+  OnClose = FormClose
+  OnCreate = FormCreate
   object EdtSrc: TEdit
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
